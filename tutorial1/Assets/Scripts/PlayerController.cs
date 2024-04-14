@@ -9,7 +9,8 @@ public class PlayerController : MonoBehaviour
 
     private float speed = 5f;
     private float thrust = 1f;
-    
+    private float rotationSpeed = 1f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,18 +38,20 @@ public class PlayerController : MonoBehaviour
             playerTransform.position += Time.deltaTime * speed * Vector3.right;
         }
 
+        if (Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
+        {
+            Vector3 newForce = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+            if (newForce != Vector3.zero)
+            {
+                Vector3 newDirection = Vector3.RotateTowards(transform.forward, newForce, Time.deltaTime * rotationSpeed, 0);
+                playerTransform.LookAt(newDirection);
+            }
+        }
+
         // Jump
         if (Input.GetKey(KeyCode.Space))
         {
             rb.AddForce(Vector3.up * thrust, ForceMode.Impulse);
-        }
-
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit))
-        {
-            Vector3 target = new Vector3(hit.point.x, playerTransform.position.y, hit.point.z);
-            playerTransform.LookAt(target);
         }
     }
 }
